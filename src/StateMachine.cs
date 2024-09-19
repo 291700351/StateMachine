@@ -32,7 +32,7 @@ public partial class StateMachine : Node
 		{
 			if (item is not State)
 			{
-				Debug($"'${item.Name}' is not a state node, Please check it.");
+				Debug($"'{item.Name}' is not a state node, Please check it.");
 				continue;
 			}
 			State s = item as State;
@@ -73,8 +73,10 @@ public partial class StateMachine : Node
 		EmitSignal(nameof(OnEnter), state);
 
 		EmitSignal(nameof(OnStateChanged), currentState, state);
-		Debug($"{currentState.Name} => {state.Name}");
+		state temp = currentState;
 		currentState = state;
+		Debug($"{temp.Name} => {state.Name}");
+		
 	}
 
 	private void ChangeState(String name)
