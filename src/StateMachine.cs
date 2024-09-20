@@ -4,6 +4,10 @@ using System.Data.Common;
 using System.Linq;
 
 namespace Lee.FSM;
+/// <summary>
+/// 状态机
+/// </summary>
+[Tool]
 public partial class StateMachine : Node
 {
 
@@ -21,7 +25,7 @@ public partial class StateMachine : Node
 	private State currentState = new ResetState();
 
 	public override void _Ready()
-	{ 
+	{
 		Godot.Collections.Array<Node> children = GetChildren();
 		if (null == children || children.Count == 0)
 		{
@@ -47,7 +51,7 @@ public partial class StateMachine : Node
 			if (node is State)
 			{
 				State s = node as State;
-				SwitchState(s); 
+				SwitchState(s);
 				break;
 			}
 		}
@@ -64,6 +68,10 @@ public partial class StateMachine : Node
 		{
 			throw new NullReferenceException("You want to switch to a null state");
 		}
+		if(state.Equals(currentState)){
+			Debug($"Target state is equals current, Skip it.");
+			return;
+		}
 		if (null != currentState)
 		{
 			currentState.OnExit();
@@ -71,19 +79,17 @@ public partial class StateMachine : Node
 		}
 		state.OnEnter();
 		EmitSignal(nameof(OnEnter), state);
-
+  
 		EmitSignal(nameof(OnStateChanged), currentState, state);
-		state temp = currentState;
-		currentState = state;
-		Debug($"{temp.Name} => {state.Name}");
-		
+		Debug($"{currentState.Name} => {state.Name}");
+		currentState = state; 
 	}
 
 	private void ChangeState(String name)
 	{
 		if (!HasNode(name))
 		{
-			Debug("Can not find state named '${name}'");
+			Debug($"Can not find state named '{name}'");
 			return;
 		}
 		Node node = GetNode(name);
@@ -94,12 +100,12 @@ public partial class StateMachine : Node
 		}
 		if (node is not State)
 		{
-			Debug("Target state '$name' is not a State node");
+			Debug($"Target state '{name}' is not a State node");
 			return;
 		}
 		if (node.Equals(currentState))
 		{
-			Debug("Target state '{name}' equals current,Skip it.");
+			Debug($"Target state '{name}' equals current, Skip it.");
 			return;
 		}
 		State s = node as State;
